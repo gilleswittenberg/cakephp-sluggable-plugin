@@ -51,6 +51,11 @@ class SluggableBehavior extends ModelBehavior
 	 * - appendInt: (boolean, optional) set to false if separator plus non-existing
 	 *				integer should not be appended to slug if slug already appears in 
 	 *				database. DEFAULTS TO: true
+	 * - parentId: (string, optional) set to fieldname of parent_id that should only be search
+	 *				for similar slugs 
+	 *				DEFAULTS TO: null
+	 * - blacklist: (array, optional) set to array containing non-allowed slugs 
+	 *				DEFAULTS TO: empty array
 	 *
 	 * @param object $Model Model using the behaviour
 	 * @param array $settings Settings to override for model.
@@ -58,7 +63,7 @@ class SluggableBehavior extends ModelBehavior
 	 */
 	function setup(&$Model, $settings = array())
 	{
-		$default = array('label' => array('title'), 'slug' => 'slug', 'separator' => '-', 'length' => 100, 'overwrite' => false, 'translation' => null, 'appendInt' => false);
+		$default = array('label' => array('title'), 'slug' => 'slug', 'separator' => '-', 'length' => 100, 'overwrite' => false, 'translation' => null, 'appendInt' => false, 'parentId' => null, 'blacklist' => array());
 
 		if (!isset($this->__settings[$Model->alias]))
 		{
@@ -131,12 +136,24 @@ class SluggableBehavior extends ModelBehavior
 						$conditions[$Model->alias . '.' . $Model->primaryKey.' !='] = $Model->id;
 					}
 
+					if($this->__settings[$Model->alias]['parentId'])
+					{
+						$conditions[$Model->alias . '.' . $this->__settings[$Model->alias]['parentId']] = $Model->data[$Model->alias][$this->__settings[$Model->alias]['parentId']]; 	
+					}
+
 					$result = $Model->find('all', array('conditions' => $conditions, 'fields' => array($Model->primaryKey, $this->__settings[$Model->alias]['slug']), 'recursive' => -1));
 					$sameUrls = null;
 
 					if (!empty($result))
 					{
 						$sameUrls = Set::extract($result, '{n}.' . $Model->alias . '.' . $this->__settings[$Model->alias]['slug']);
+					}
+					
+					// add blacklist entry to sameUrls array
+					if(!empty($this->__settings[$Model->alias]['blacklist'])){
+						if(in_array($slug, $this->__settings[$Model->alias]['blacklist'])){
+							$sameUrls[] = $slug;	
+						}
 					}
 
 					// If we have collissions
