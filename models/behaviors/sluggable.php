@@ -63,7 +63,7 @@ class SluggableBehavior extends ModelBehavior
 	 */
 	function setup(&$Model, $settings = array())
 	{
-		$default = array('label' => array('title'), 'slug' => 'slug', 'separator' => '-', 'length' => 100, 'overwrite' => false, 'translation' => null, 'appendInt' => false, 'parentId' => null, 'blacklist' => array());
+		$default = array('label' => array('title'), 'slug' => 'slug', 'separator' => '-', 'length' => 100, 'overwrite' => false, 'translation' => null, 'appendInt' => true, 'parentId' => null, 'blacklist' => array());
 
 		if (!isset($this->__settings[$Model->alias]))
 		{
