@@ -425,6 +425,68 @@ class SluggableTestCase extends CakeTestCase
 		$this->assertEqual($result, $expected);
 		$this->SlugArticle->id = null;
 
+		$Sluggable->setup($this->SlugArticle, array('appendInt' => false));
+
+		$this->SlugArticle->data = array('SlugArticle' => array('title' => 'Fourth Article'));
+		$result = $Sluggable->beforeSave($this->SlugArticle);
+		$this->assertTrue($result !== false);
+		$result = $this->SlugArticle->data;
+		$expected = array('SlugArticle' => array('title' => 'Fourth Article', 'slug' => 'fourth-article'));
+		$this->assertEqual($result, $expected);
+
+		$Sluggable->setup($this->SlugArticle, array('appendInt' => true));
+
+		$this->SlugArticle->data = array('SlugArticle' => array('title' => 'First Article'));
+		$result = $Sluggable->beforeSave($this->SlugArticle);
+		$this->assertTrue($result !== false);
+		$result = $this->SlugArticle->data;
+		$expected = array('SlugArticle' => array('title' => 'First Article', 'slug' => 'first-article-1'));
+		$this->assertEqual($result, $expected);
+
+		$this->SlugArticle->data = array('SlugArticle' => array('title' => 'Fourth Article'));
+		$result = $Sluggable->beforeSave($this->SlugArticle);
+		$this->assertTrue($result !== false);
+		$result = $this->SlugArticle->data;
+		$expected = array('SlugArticle' => array('title' => 'Fourth Article', 'slug' => 'fourth-article-2'));
+		$this->assertEqual($result, $expected);
+
+		$Sluggable->setup($this->SlugArticle, array('blacklist' => array('black')));
+
+		$this->SlugArticle->data = array('SlugArticle' => array('title' => 'Black'));
+		$result = $Sluggable->beforeSave($this->SlugArticle);
+		$this->assertTrue($result !== false);
+		$result = $this->SlugArticle->data;
+		$expected = array('SlugArticle' => array('title' => 'Black', 'slug' => 'black-1'));
+		$this->assertEqual($result, $expected);
+
+		$Sluggable->setup($this->SlugArticle, array('blacklist' => array(), 'parentId' => 'parent_id'));
+
+		$this->SlugArticle->data = array('SlugArticle' => array('parent_id' => 3, 'title' => 'Fifth Article'));
+		$result = $Sluggable->beforeSave($this->SlugArticle);
+		$this->assertTrue($result !== false);
+		$result = $this->SlugArticle->data;
+		$expected = array('SlugArticle' => array('parent_id' => 3, 'title' => 'Fifth Article', 'slug' => 'fifth-article-1'));
+		$this->assertEqual($result, $expected);
+
+		$Sluggable->setup($this->SlugArticle, array('blacklist' => array(), 'parentId' => 'parent_id'));
+
+		$this->SlugArticle->data = array('SlugArticle' => array('parent_id' => 2, 'title' => 'Fifth Article'));
+		$result = $Sluggable->beforeSave($this->SlugArticle);
+		$this->assertTrue($result !== false);
+		$result = $this->SlugArticle->data;
+		$expected = array('SlugArticle' => array('parent_id' => 2, 'title' => 'Fifth Article', 'slug' => 'fifth-article'));
+		$this->assertEqual($result, $expected);
+
+		$Sluggable->setup($this->SlugArticle, array('blacklist' => array(), 'parentId' => 'parent_id'));
+
+		$this->SlugArticle->data = array('SlugArticle' => array('parent_id' => 2, 'title' => 'Fourth Article'));
+		$result = $Sluggable->beforeSave($this->SlugArticle);
+		$this->assertTrue($result !== false);
+		$result = $this->SlugArticle->data;
+		$expected = array('SlugArticle' => array('parent_id' => 2, 'title' => 'Fourth Article', 'slug' => 'fourth-article-2'));
+		$this->assertEqual($result, $expected);
+
+
 		unset($Sluggable);
 	}
 
